@@ -1,4 +1,4 @@
 Distributed Systems by MIT
 ==========
 
-I created this project for learning distributed system and golang as well.
+* source url : http://nil.csail.mit.edu/6.824/2015/
