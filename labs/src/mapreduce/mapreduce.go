@@ -209,6 +209,7 @@ func DoMap(JobNumber int, fileName string,
 		log.Fatal("DoMap: ", err)
 	}
 	file.Close()
+	// Where the Map() method be called.
 	res := Map(string(b))
 	// XXX a bit inefficient. could open r files and run over list once
 	for r := 0; r < nreduce; r++ {
