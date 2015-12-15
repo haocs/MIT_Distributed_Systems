@@ -1,2 +1,6 @@
 api.key
 *-handin.tar.gz
+
+# Golang
+labs/bin
+labs/pkg
