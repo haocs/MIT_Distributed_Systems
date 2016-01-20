@@ -4,3 +4,7 @@ api.key
 # Golang
 labs/bin
 labs/pkg
+labs/src/github.com
+labs/src/golang.org
+labs/src/9fans.net
+labs/src/gopkg.in
