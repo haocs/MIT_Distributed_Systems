@@ -18,15 +18,16 @@ func Map(value string) *list.List {
 	//fmt.Println("Start Map...")
 	// Each input 'value' represents a chunk of splitted file.
 	wordMap := make(map[string]int)
+	f := func(c rune) bool {
+		return !unicode.IsLetter(c)
+	}
 	res := list.New()
-	l := strings.Split(value, " ")
+	l := strings.FieldsFunc(value, f)
 	for _, word := range l {
-		if IsValidWord(word) {
-			if wordMap[word] == 0 {
-				wordMap[word] = 1
-			} else {
-				wordMap[word] = wordMap[word] + 1
-			}
+		if wordMap[word] == 0 {
+			wordMap[word] = 1
+		} else {
+			wordMap[word] = wordMap[word] + 1
 		}
 	}
 	// construct output result
@@ -40,22 +41,13 @@ func Map(value string) *list.List {
 // of that key's string value. should return a single
 // output value for that key.
 func Reduce(key string, values *list.List) string {
-	return ""
-}
-
-// Check if the input string a valid word
-// valid word only contain a ~ z chars.
-func IsValidWord(word string) bool {
-	l := len(word)
-	if l == 0 {
-		return false
-	}
-	for i := 0; i < l; i++ {
-		if !unicode.IsLetter(rune(word[i])) {
-			return false
+	var count int
+	for e := values.Front(); e != nil; e = e.Next() {
+		if val, err := strconv.Atoi(e.Value.(string)); err == nil {
+			count += val
 		}
 	}
-	return true
+	return strconv.Itoa(count)
 }
 
 // Can be run in 3 ways:
