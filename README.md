@@ -5,15 +5,10 @@ Distributed Systems by MIT
 * golang version: 1.6+
 
 ## Setup
-~~* Config Golang running env.
-* Or Running [script](https://github.com/haocs/dotfiles/blob/master/scripts/InstallLangs.sh) to install Golang and config PATH on Ubuntu.
-* Set $GOPATH ``` export GOPATH="<project_root>/labs"```
-* OR running the [init.sh](https://github.com/haocs/MIT_Distributed_Systems/blob/master/init.sh)
-~~
-* Use goland
+* Install golang 1.6+
+* Install Goland IDE by JetBrains
+* Set $GOPATH ``` export GOPATH="<project_root>/6.824"```
 
-## Lab 1 
-### Implement simple MapReduce framework
-``` bash
-	$ go run wc.go master kjv12.txt sequential
-```
+
+## Lab 1: Implement simple MapReduce framework
+Status: Part 1 and 2 are done.
