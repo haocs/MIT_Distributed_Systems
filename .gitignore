@@ -9,5 +9,6 @@ labs/src/golang.org
 labs/src/9fans.net
 labs/src/gopkg.in
 
-#All hidden directory/file
 **/.idea
+**/pkg
+
