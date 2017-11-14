@@ -11,4 +11,4 @@ Distributed Systems by MIT
 
 
 ## Lab 1: Implement simple MapReduce framework
-Status: Part 1 and 2 are done.
+Status: Part 1 ~ 3 are done.
