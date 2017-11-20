@@ -30,38 +30,42 @@ func schedule(jobName string, mapFiles []string, nReduce int, phase jobPhase, re
 	fmt.Printf("Schedule: %v %v tasks (%d I/Os)\n", ntasks, phase, n_other)
 
 	var waitGroup sync.WaitGroup
-	workerChan := initWorkerChan(registerChan, 10)
+
+	waitGroup.Add(ntasks)
+	workerChan := initWorkerChan(registerChan, 100)
 
 	for i:= 0; i < ntasks; i++ {
-		fmt.Printf("Submitting task: %d\n", i)
-		waitGroup.Add(1)
+		debug("Submitting task: %d\n", i)
 
+		// each goroutine will return only when task completes successfully
 		go func(registerChan chan string, workerChan chan string, jobNum int, mapFile []string) {
-			defer waitGroup.Done()
 
-			populateNewWorkerFromRegisterChan(registerChan, workerChan)
+			for {
+				worker := <- workerChan
 
-			worker := <- workerChan
-			fmt.Printf("Avaialbe worker: %s\n", worker)
+				// Do map/reduce
+				var inFile string
+				if phase == mapPhase {
+					inFile = mapFiles[jobNum]
+				}
+				doTaskArgs := DoTaskArgs{
+					JobName:jobName,
+					File: inFile,
+					Phase: phase,
+					TaskNumber:jobNum,
+					NumOtherPhase: n_other}
+				success := doTask(worker, doTaskArgs)
 
-			// Do map/reduce
-			var inFile string
-			if phase == mapPhase {
-				inFile = mapFiles[jobNum]
-				//fmt.Printf("file %s\n", inFile)
+				if success {
+					workerChan <- worker
+					waitGroup.Done()
+					debug("Task %d done\n", jobNum)
+					break
+				} else {
+					debug("Task %d failed\n", jobNum)
+				}
 			}
-			doTaskArgs := DoTaskArgs{
-				JobName:jobName,
-				File: inFile,
-				Phase: phase,
-				TaskNumber:jobNum,
-				NumOtherPhase: n_other}
-			doTask(worker, doTaskArgs)
 
-			fmt.Printf("Task %d done\n", jobNum)
-
-			//When task finished, add worker back then update waitgroup.
-			workerChan <- worker
 		}(registerChan, workerChan, i, mapFiles)
 	}
 	// wait all submitted tasks to finish
@@ -71,15 +75,20 @@ func schedule(jobName string, mapFiles []string, nReduce int, phase jobPhase, re
 
 func initWorkerChan(registerChan chan string, size int) chan string {
 	workerChan := make(chan string, size)
-	worker := <- registerChan
-	workerChan <- worker
+
+	// keep populating new worker from registerChan to workerChan
+	go func(registerChan chan string, workerChan chan string) {
+		for {
+			populateNewWorkerFromRegisterChan(registerChan, workerChan)
+		}
+	}(registerChan, workerChan)
+
 	return workerChan
 }
 
 func populateNewWorkerFromRegisterChan(registerChan chan string, workerChan chan string) {
 	select {
 	case newWorker := <- registerChan:
-		fmt.Printf("new worker found: %s\n", newWorker)
 		workerChan <- newWorker
 	default:
 	}
