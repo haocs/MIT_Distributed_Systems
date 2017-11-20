@@ -30,7 +30,7 @@ func schedule(jobName string, mapFiles []string, nReduce int, phase jobPhase, re
 	fmt.Printf("Schedule: %v %v tasks (%d I/Os)\n", ntasks, phase, n_other)
 
 	var waitGroup sync.WaitGroup
-	workerChan := initWorkerChan(&registerChan, 10)
+	workerChan := initWorkerChan(registerChan, 10)
 
 	for i:= 0; i < ntasks; i++ {
 		fmt.Printf("Submitting task: %d\n", i)
@@ -39,7 +39,7 @@ func schedule(jobName string, mapFiles []string, nReduce int, phase jobPhase, re
 		go func(registerChan chan string, workerChan chan string, jobNum int, mapFile []string) {
 			defer waitGroup.Done()
 
-			populateNewWorkerFromRegisterChan(&registerChan, &workerChan)
+			populateNewWorkerFromRegisterChan(registerChan, workerChan)
 
 			worker := <- workerChan
 			fmt.Printf("Avaialbe worker: %s\n", worker)
@@ -69,18 +69,18 @@ func schedule(jobName string, mapFiles []string, nReduce int, phase jobPhase, re
 	fmt.Printf("Schedule: %v phase done\n", phase)
 }
 
-func initWorkerChan(registerChan *chan string, size int) chan string {
+func initWorkerChan(registerChan chan string, size int) chan string {
 	workerChan := make(chan string, size)
-	worker := <- *registerChan
+	worker := <- registerChan
 	workerChan <- worker
 	return workerChan
 }
 
-func populateNewWorkerFromRegisterChan(registerChan *chan string, workerChan *chan string) {
+func populateNewWorkerFromRegisterChan(registerChan chan string, workerChan chan string) {
 	select {
-	case newWorker := <- *registerChan:
+	case newWorker := <- registerChan:
 		fmt.Printf("new worker found: %s\n", newWorker)
-		*workerChan <- newWorker
+		workerChan <- newWorker
 	default:
 	}
 }
